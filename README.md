@@ -43,7 +43,7 @@ Without this configuration, the extension cannot automate the authentication pro
 Clone or download this repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/SSO_2FA_Skipper.git
+git clone https://github.com/kmch4n/SSO_2FA_Skipper.git
 ```
 
 ### Step 2: Load into Chrome
