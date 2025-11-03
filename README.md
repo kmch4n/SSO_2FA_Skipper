@@ -8,6 +8,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue.svg)](https://www.google.com/chrome/)
+[![Latest Release](https://img.shields.io/github/v/release/kmch4n/SSO_2FA_Skipper)](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)
+
+[English](README.md) | [日本語](README_ja.md)
 
 </div>
 
@@ -40,18 +43,18 @@ Without this configuration, the extension cannot automate the authentication pro
 
 ### Step 1: Download the Extension
 
-Clone or download this repository to your local machine:
+**[📥 Download the latest release](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)**
 
-```bash
-git clone https://github.com/kmch4n/SSO_2FA_Skipper.git
-```
+1. Go to the [Releases page](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)
+2. Download the latest release package
+3. Extract the downloaded file
 
 ### Step 2: Load into Chrome
 
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable **Developer mode** by toggling the switch in the top right corner
 3. Click **Load unpacked**
-4. Select the `extension` folder from the downloaded repository
+4. Select the extracted `extension` folder
 
 ### Step 3: Configure Your Credentials
 
@@ -80,9 +83,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## ⚖️ Disclaimer
 
 This tool is provided for convenience and educational purposes. The two-factor authentication system it bypasses is described as "merely a formality" by the author. Use at your own risk and ensure compliance with your institution's acceptable use policies.
-
----
-
-<div align="center">
-Made by kmch4n
-</div>
