@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "SSO 2FA Auto Login",
+  "version": "1.0",
+  "description": "Automate SSO login with 2FA",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://sso.doshisha.ac.jp/*",
+    "https://idp.doshisha.ac.jp/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/logo.png",
+      "48": "images/logo.png",
+      "128": "images/logo.png"
+    }
+  },
+  "icons": {
+    "16": "images/logo.png",
+    "48": "images/logo.png",
+    "128": "images/logo.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sso.doshisha.ac.jp/*",
+        "https://idp.doshisha.ac.jp/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "options_page": "options.html"
+}
