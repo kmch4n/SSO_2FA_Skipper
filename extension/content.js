@@ -13,7 +13,8 @@ async function clearState() {
 }
 
 // Utility function: Wait for element to appear
-function waitForElement(xpath, timeout = 10000) {
+function waitForElement(xpath, timeout = 5000) {
+  console.log(`[waitForElement] 要素を待機中: ${xpath} (タイムアウト: ${timeout}ms)`);
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
 
@@ -27,11 +28,13 @@ function waitForElement(xpath, timeout = 10000) {
       ).singleNodeValue;
 
       if (element) {
+        const elapsed = Date.now() - startTime;
+        console.log(`[waitForElement] 要素が見つかりました (${elapsed}ms経過)`);
         resolve(element);
       } else if (Date.now() - startTime > timeout) {
         reject(new Error(`Element not found: ${xpath}`));
       } else {
-        setTimeout(checkElement, 100);
+        setTimeout(checkElement, 50);
       }
     };
 
@@ -40,7 +43,8 @@ function waitForElement(xpath, timeout = 10000) {
 }
 
 // Utility function: Wait for element to be clickable
-function waitForClickable(xpath, timeout = 10000) {
+function waitForClickable(xpath, timeout = 5000) {
+  console.log(`[waitForClickable] クリック可能要素を待機中: ${xpath} (タイムアウト: ${timeout}ms)`);
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
 
@@ -54,11 +58,13 @@ function waitForClickable(xpath, timeout = 10000) {
       ).singleNodeValue;
 
       if (element && element.offsetParent !== null) {
+        const elapsed = Date.now() - startTime;
+        console.log(`[waitForClickable] クリック可能になりました (${elapsed}ms経過)`);
         resolve(element);
       } else if (Date.now() - startTime > timeout) {
         reject(new Error(`Element not clickable: ${xpath}`));
       } else {
-        setTimeout(checkElement, 100);
+        setTimeout(checkElement, 50);
       }
     };
 
@@ -68,7 +74,11 @@ function waitForClickable(xpath, timeout = 10000) {
 
 // Utility function: Sleep
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  console.log(`[sleep] ${ms}ms 待機中...`);
+  return new Promise(resolve => setTimeout(() => {
+    console.log(`[sleep] ${ms}ms 待機完了`);
+    resolve();
+  }, ms));
 }
 
 // Step implementations
@@ -110,7 +120,7 @@ async function step1_enterCredentials(loginId, loginPassword) {
 }
 
 async function step2_selectAuthMethod() {
-  await sleep(500);
+  await sleep(200);
 
   const matrixButton = await waitForClickable("/html/body/div/div/div/form/div[1]/button");
 
@@ -121,7 +131,7 @@ async function step2_selectAuthMethod() {
 }
 
 async function step3_clickImages() {
-  await sleep(2000);
+  await sleep(500);
 
   await waitForElement("//div[contains(@style, 'e17.gif')]");
 
@@ -195,10 +205,12 @@ async function autoExecuteNextStep() {
 // Execute automatically on page load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(autoExecuteNextStep, 1000);
+    console.log('[自動実行] 300ms後に次のステップを実行します');
+    setTimeout(autoExecuteNextStep, 300);
   });
 } else {
-  setTimeout(autoExecuteNextStep, 1000);
+  console.log('[自動実行] 300ms後に次のステップを実行します');
+  setTimeout(autoExecuteNextStep, 300);
 }
 
 // Message listener
