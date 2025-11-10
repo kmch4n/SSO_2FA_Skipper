@@ -35,9 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function showMessage(text, isSuccess) {
     messageDiv.textContent = text;
     messageDiv.className = 'message show ' + (isSuccess ? 'success' : 'error');
-    console.log(`[showMessage] メッセージ表示: "${text}" - 1500ms後に非表示にします`);
     setTimeout(() => {
-      console.log(`[showMessage] メッセージを非表示にしました`);
       messageDiv.className = 'message';
     }, 1500);
   }

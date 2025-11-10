@@ -5,13 +5,29 @@ document.addEventListener('DOMContentLoaded', function() {
   const settingsLink = document.getElementById('settingsLink');
   const userInfoDiv = document.getElementById('userInfo');
   const userIdSpan = document.getElementById('userId');
+  const autoLoginToggle = document.getElementById('autoLoginToggle');
 
-  // Load and display user ID
-  chrome.storage.sync.get(['loginId'], function(result) {
+  // Load and display user ID and auto-login setting
+  chrome.storage.sync.get(['loginId', 'autoLoginEnabled'], function(result) {
     if (result.loginId) {
       userIdSpan.textContent = result.loginId;
       userInfoDiv.style.display = 'block';
     }
+    // Load auto-login setting (default: false)
+    autoLoginToggle.checked = result.autoLoginEnabled || false;
+  });
+
+  // Save auto-login setting when toggled
+  autoLoginToggle.addEventListener('change', function() {
+    chrome.storage.sync.set({ autoLoginEnabled: autoLoginToggle.checked }, function() {
+      const status = autoLoginToggle.checked ? 'enabled' : 'disabled';
+      statusDiv.textContent = `Auto login ${status}`;
+      statusDiv.className = 'info';
+      setTimeout(() => {
+        statusDiv.textContent = '';
+        statusDiv.className = '';
+      }, 2000);
+    });
   });
 
   // Open settings page

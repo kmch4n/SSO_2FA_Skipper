@@ -4,82 +4,123 @@
 
 ![Logo](extension/images/logo.png)
 
-**Automate Doshisha University's Web Single Sign-On 2FA Authentication**
+**同志社大学 Webシングルサインオンの2要素認証を自動化**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue.svg)](https://www.google.com/chrome/)
 [![Latest Release](https://img.shields.io/github/v/release/kmch4n/SSO_2FA_Skipper)](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)
 
-[English](README.md) | [日本語](README_ja.md)
-
 </div>
 
 ---
 
-## 🎯 Overview
+## 🎯 概要
 
-SSO 2FA Skipper is a Chrome extension that automates the two-factor authentication process for Doshisha University's web single sign-on system. The extension streamlines the login process by automatically handling the image matrix authentication step.
+SSO 2FA Skipperは、同志社大学のWebシングルサインオンシステムにおける2要素認証プロセスを自動化するChrome拡張機能です。画像マトリックス認証を自動で処理することで、ログインの手間を大幅に削減します。
 
-## ⚡ Features
+## ⚡ 主な機能
 
-- **One-Click Login**: Execute the entire SSO authentication flow with a single button click
-- **Automatic Page Navigation**: Seamlessly handles page transitions during the authentication process
-- **Secure Credential Storage**: Saves your login credentials securely in Chrome's storage
-- **User-Friendly Interface**: Clean and intuitive popup interface with current user display
+- **ワンクリックログイン**: ボタン一つでSSO認証フロー全体を実行
+- **自動ページ遷移**: 認証プロセス中のページ遷移を自動処理
+- **セッションタイムアウト後の自動ログイン**: 一定時間経過後のログアウトを検知し、自動的に再ログイン
+- **認証情報の安全な保存**: ログイン情報をChromeストレージに保存
+- **古いパスワード変更警告の非表示**: 時代遅れのパスワード定期変更警告を非表示化
+- **無限ループ防止機能**: 認証エラー時に自動ログインを無効化し、無限試行を防止
 
-## ⚙️ Prerequisites
+## ⚙️ 事前準備
 
-**Important:** Before using this extension, you must configure your 2FA image authentication settings:
+**重要:** この拡張機能を使用する前に、2要素認証の設定を行う必要があります。
 
-1. Log in to the SSO system manually
-2. Navigate to your 2FA settings
-3. Set your authentication method to **image matrix**
-4. Select the **logo mark (triangle icon)** as your authentication image
-5. Configure it to require **3 clicks** of the same image
+1. SSOシステムに手動でログイン
+2. 2要素認証設定へ移動
+3. 認証方式を**画像マトリックス**に設定
+4. 認証画像として**ロゴマーク（三角形アイコン）**を選択
+5. **同じ画像を3回クリック**する設定にする
 
-Without this configuration, the extension cannot automate the authentication process.
+この設定がない場合、拡張機能は正常に動作しません。
 
-## 📦 Installation
+## 📦 インストール
 
-### Step 1: Download the Extension
+### ステップ 1: 拡張機能をダウンロード
 
-**[📥 Download the latest release](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)**
+**[📥 最新版をダウンロード](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)**
 
-1. Go to the [Releases page](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)
-2. Download the latest release package
-3. Extract the downloaded file
+1. [リリースページ](https://github.com/kmch4n/SSO_2FA_Skipper/releases/latest)へアクセス
+2. 最新版のリリースパッケージをダウンロード
+3. ダウンロードしたファイルを解凍
 
-### Step 2: Load into Chrome
+### ステップ 2: Chromeに読み込む
 
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable **Developer mode** by toggling the switch in the top right corner
-3. Click **Load unpacked**
-4. Select the extracted `extension` folder
+1. Chromeで`chrome://extensions/`を開く
+2. 右上の**デベロッパーモード**を有効化
+3. **パッケージ化されていない拡張機能を読み込む**をクリック
+4. 解凍した`extension`フォルダを選択
 
-### Step 3: Configure Your Credentials
+### ステップ 3: 認証情報を設定
 
-1. Click the extension icon in your Chrome toolbar
-2. Click **Settings** at the bottom of the popup
-3. Enter your login ID and password
-4. Click **Save**
+1. Chromeツールバーの拡張機能アイコンをクリック
+2. ポップアップ下部の**Settings**をクリック
+3. ログインIDとパスワードを入力
+4. **Save**をクリック
 
-## 🚀 Usage
+## 🚀 使い方
 
-1. Click the extension icon
-2. Click **Open SSO Page** to navigate to the login page
-3. Click **Execute Login**
-4. The extension will automatically complete the 2FA process
+### 手動ログイン
 
-That's it! The extension handles everything from entering credentials to clicking the correct image matrix selections.
+1. 拡張機能アイコンをクリック
+2. **Open SSO Page**でログインページを開く
+3. **Execute Login**をクリック
+4. 拡張機能が自動的に2要素認証を完了
 
-## ⚠️ Security Notice
+### 自動ログイン
 
-**Important:** This extension stores your credentials in Chrome's sync storage. Only use this extension with your own account on devices you trust. The author assumes no responsibility for any security issues or disadvantages resulting from the use of this tool.
+1. 拡張機能ポップアップを開く
+2. **Auto Login**トグルスイッチをONにする
+3. セッションタイムアウトでログアウトされた際、自動的にログインが実行される
 
-## 📄 License
+セッションタイムアウト時には`https://idp.doshisha.ac.jp/idp/profile/SAML2/Redirect/SSO`へリダイレクトされますが、自動ログインが有効な場合は手動操作なしで再ログインが完了します。
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🔒 セキュリティに関する注意
 
-## ⚖️ Disclaimer
+**重要:** この拡張機能は認証情報をChromeの同期ストレージに保存します。信頼できるデバイスで、自分自身のアカウントのみに使用してください。
 
-This tool is provided for convenience and educational purposes. The two-factor authentication system it bypasses is described as "merely a formality" by the author. Use at your own risk and ensure compliance with your institution's acceptable use policies.
+### 無限ループ防止機能
+
+認証情報が誤っている場合、以下の動作により無限試行を防止します：
+
+1. 認証エラーを検出
+2. 自動ログイン機能を自動的に無効化
+3. ユーザーにアラートを表示
+4. 設定ページで認証情報を修正し、再度トグルをONにするまで自動ログインは実行されない
+
+手動の「Execute Login」ボタンは、エラーメッセージが表示されていても使用可能です。
+
+## 📄 ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
+
+## ⚖️ 免責事項
+
+このツールは利便性と教育目的で提供されています。2要素認証システムについては「形式的なもの」として作者が認識していますが、使用は自己責任で行ってください。また、所属機関の利用規約に従うことを確認してください。
+
+本ツールの使用によって生じたいかなるセキュリティ上の問題や不利益についても、作者は一切の責任を負いません。
+
+## 🔧 技術詳細
+
+- **Manifest Version**: 3
+- **対応ドメイン**: `sso.doshisha.ac.jp`, `idp.doshisha.ac.jp`
+- **権限**: storage, activeTab, scripting
+- **言語**: JavaScript (ES6+), HTML5, CSS3
+
+## 📝 変更履歴
+
+### v1.1.0 (2025-11-10)
+- セッションタイムアウト後の自動ログイン機能を追加
+- 認証エラー検出と無限ループ防止機能を実装
+- 古いパスワード変更警告を非表示化
+- コードのリファクタリングと最適化
+- README を完全日本語化
+
+### v1.0.0
+- 初回リリース
+- 基本的な2要素認証自動化機能

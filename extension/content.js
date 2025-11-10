@@ -14,7 +14,6 @@ async function clearState() {
 
 // Utility function: Wait for element to appear
 function waitForElement(xpath, timeout = 5000) {
-  console.log(`[waitForElement] 要素を待機中: ${xpath} (タイムアウト: ${timeout}ms)`);
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
 
@@ -28,8 +27,6 @@ function waitForElement(xpath, timeout = 5000) {
       ).singleNodeValue;
 
       if (element) {
-        const elapsed = Date.now() - startTime;
-        console.log(`[waitForElement] 要素が見つかりました (${elapsed}ms経過)`);
         resolve(element);
       } else if (Date.now() - startTime > timeout) {
         reject(new Error(`Element not found: ${xpath}`));
@@ -44,7 +41,6 @@ function waitForElement(xpath, timeout = 5000) {
 
 // Utility function: Wait for element to be clickable
 function waitForClickable(xpath, timeout = 5000) {
-  console.log(`[waitForClickable] クリック可能要素を待機中: ${xpath} (タイムアウト: ${timeout}ms)`);
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
 
@@ -58,8 +54,6 @@ function waitForClickable(xpath, timeout = 5000) {
       ).singleNodeValue;
 
       if (element && element.offsetParent !== null) {
-        const elapsed = Date.now() - startTime;
-        console.log(`[waitForClickable] クリック可能になりました (${elapsed}ms経過)`);
         resolve(element);
       } else if (Date.now() - startTime > timeout) {
         reject(new Error(`Element not clickable: ${xpath}`));
@@ -74,15 +68,58 @@ function waitForClickable(xpath, timeout = 5000) {
 
 // Utility function: Sleep
 function sleep(ms) {
-  console.log(`[sleep] ${ms}ms 待機中...`);
-  return new Promise(resolve => setTimeout(() => {
-    console.log(`[sleep] ${ms}ms 待機完了`);
-    resolve();
-  }, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Check for authentication error on the page (for auto-login only)
+async function checkForAuthErrorAndDisable() {
+  // Wait a bit for error message to appear
+  await sleep(200);
+
+  // Look for error messages (common patterns on idp.doshisha.ac.jp)
+  const errorPatterns = [
+    "ユーザ名かパスワードが違います",
+    "ユーザー名かパスワードが違います",
+    "認証に失敗しました",
+    "ログインに失敗しました",
+    "incorrect",
+    "invalid"
+  ];
+
+  const bodyText = document.body.innerText || document.body.textContent;
+
+  for (const pattern of errorPatterns) {
+    if (bodyText.includes(pattern)) {
+      // Get current auto-login attempt tracking
+      const result = await chrome.storage.local.get(['autoLoginAttemptTime']);
+      const lastAttemptTime = result.autoLoginAttemptTime || 0;
+      const currentTime = Date.now();
+
+      // If we attempted auto-login recently (within last 5 seconds) and error is present
+      // this indicates the auto-login failed
+      if (currentTime - lastAttemptTime < 5000) {
+        // Disable auto-login immediately
+        await chrome.storage.sync.set({ autoLoginEnabled: false });
+
+        // Clear state to prevent retry
+        await clearState();
+
+        // Clear attempt time
+        await chrome.storage.local.remove('autoLoginAttemptTime');
+
+        // Show alert to user
+        alert('認証エラーが検出されました。\n\nユーザー名またはパスワードが正しくありません。\n\n無限ループを防ぐため、自動ログイン機能を無効にしました。\n\n設定ページで認証情報を確認してください。');
+
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 // Step implementations
-async function step1_enterCredentials(loginId, loginPassword) {
+async function step1_enterCredentials(loginId, loginPassword, isAutoLogin = false) {
   const usernameInput = await waitForElement("/html/body/div/div/div/div/form/div[1]/input");
   usernameInput.value = loginId;
 
@@ -171,18 +208,22 @@ async function step3_clickImages() {
 }
 
 // Main login process
-async function executeLogin(loginId, loginPassword) {
+async function executeLogin(loginId, loginPassword, isAutoLogin = false) {
   try {
-    await step1_enterCredentials(loginId, loginPassword);
+    // If this is auto-login, record the attempt time
+    if (isAutoLogin) {
+      await chrome.storage.local.set({ autoLoginAttemptTime: Date.now() });
+    }
+
+    await step1_enterCredentials(loginId, loginPassword, isAutoLogin);
     return { success: true, message: 'Login process started. It will continue automatically after page transitions.' };
   } catch (error) {
-    console.error('Login error:', error);
     await clearState();
     return { success: false, message: 'Error: ' + error.message };
   }
 }
 
-// Auto-execute on page load
+// Auto-execute next step on page load
 async function autoExecuteNextStep() {
   const state = await getState();
 
@@ -197,20 +238,49 @@ async function autoExecuteNextStep() {
       await step3_clickImages();
     }
   } catch (error) {
-    console.error('Auto-execution error:', error);
     await clearState();
   }
 }
 
+// Check if we're on the SAML2 redirect page and auto-login is enabled
+async function checkAndAutoLogin() {
+  const currentUrl = window.location.href;
+
+  // First, check for authentication errors on any idp.doshisha.ac.jp page
+  if (currentUrl.includes('idp.doshisha.ac.jp')) {
+    const hasError = await checkForAuthErrorAndDisable();
+    if (hasError) {
+      return;
+    }
+  }
+
+  // Check if we're on the SAML2 redirect page
+  if (currentUrl.includes('idp.doshisha.ac.jp/idp/profile/SAML2/Redirect/SSO')) {
+    // Get auto-login setting
+    const settings = await chrome.storage.sync.get(['autoLoginEnabled', 'loginId', 'loginPassword']);
+
+    if (settings.autoLoginEnabled && settings.loginId && settings.loginPassword) {
+      // Wait a bit for the page to fully load
+      await sleep(500);
+
+      // Start the login process with auto-login flag
+      await executeLogin(settings.loginId, settings.loginPassword, true);
+    }
+  }
+}
+
 // Execute automatically on page load
+const initializeAutoExecution = async () => {
+  await autoExecuteNextStep();
+  await checkAndAutoLogin();
+};
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('[自動実行] 300ms後に次のステップを実行します');
-    setTimeout(autoExecuteNextStep, 300);
+    setTimeout(initializeAutoExecution, 300);
   });
 } else {
-  console.log('[自動実行] 300ms後に次のステップを実行します');
-  setTimeout(autoExecuteNextStep, 300);
+  setTimeout(initializeAutoExecution, 300);
 }
 
 // Message listener
