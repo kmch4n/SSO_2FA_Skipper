@@ -1,9 +1,9 @@
 /* Hide outdated password change warnings */
 #alert-area {
-  display: none !important;
+    display: none !important;
 }
 
 /* Alternative: Hide only the password alert specifically */
 #alert-area .alert-danger {
-  display: none !important;
+    display: none !important;
 }
